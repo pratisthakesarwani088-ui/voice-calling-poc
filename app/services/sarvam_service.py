@@ -22,7 +22,7 @@ async def transcribe_audio(file_bytes: bytes, filename: str, content_type: str) 
 
     headers = {"api-subscription-key": settings.SARVAM_API_KEY}
     files = {"file": (filename, file_bytes, content_type)}
-    data = {"model": "saarika:v2"}
+    data = {"model": "saaras:v3"}
 
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
