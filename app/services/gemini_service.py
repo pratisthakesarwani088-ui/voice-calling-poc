@@ -17,7 +17,7 @@ class GeminiServiceError(Exception):
     """Raised when the Gemini API call fails or returns an unusable response."""
 
 
-async def generate_response(message: str, model: str = "gemini-3.6-flash") -> str:
+async def generate_response(message: str, model: str = "gemini-3.5-flash") -> str:
     """Send a single text message to Gemini and return the generated reply."""
     if not settings.GEMINI_API_KEY:
         logger.error("GEMINI_API_KEY is not configured")
