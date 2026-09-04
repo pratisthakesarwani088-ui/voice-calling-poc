@@ -1,12 +1,11 @@
 """
-Orchestrates the voice pipeline: Sarvam STT -> Gemini -> ElevenLabs TTS.
+Orchestrates the voice pipeline: Sarvam STT -> Gemini -> Sarvam TTS.
 Reuses existing service modules only; no provider logic is duplicated here.
 """
 import logging
 
-from app.services.elevenlabs_service import ElevenLabsServiceError, synthesize_speech
 from app.services.gemini_service import GeminiServiceError, generate_response
-from app.services.sarvam_service import SarvamServiceError, transcribe_audio
+from app.services.sarvam_service import SarvamServiceError, synthesize_speech, transcribe_audio
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +26,7 @@ async def run_voice_pipeline(
     system_prompt: optional call context (e.g. from prompts.py) prepended
     before the transcript when talking to Gemini. Used by the live call
     stream; /voice-chat leaves this unset and behaves as before.
-    output_format: passed through to ElevenLabs ("mp3" default, or
+    output_format: passed through to Sarvam TTS ("mp3" default, or
     "ulaw_8000" for the Twilio media stream).
     Returns (reply_audio_bytes, reply_text).
     """
@@ -51,7 +50,7 @@ async def run_voice_pipeline(
 
     try:
         reply_audio = await synthesize_speech(reply_text, output_format=output_format)
-    except ElevenLabsServiceError as exc:
+    except SarvamServiceError as exc:
         logger.error("Pipeline failed at TTS stage: %s", exc)
         raise PipelineError("Text-to-speech stage failed") from exc
 
