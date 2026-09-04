@@ -1,10 +1,10 @@
 # AI Voice Calling POC – Backend
 
-A FastAPI-based backend for an AI-powered outbound voice calling system using **Twilio, Sarvam AI, and Gemini**.
+A FastAPI backend for an AI-powered outbound voice calling system using **Twilio, Sarvam AI (STT + TTS), and Google Gemini**.
 
 ## Architecture
 
-```
+```text
 Customer
    │
    ▼
@@ -17,16 +17,16 @@ Voice Webhook
 Voice Stream
    │
    ▼
-Sarvam STT
+Sarvam Speech-to-Text (STT)
    │
    ▼
-Gemini LLM
+Google Gemini
    │
    ▼
-Sarvam TTS
+Sarvam Text-to-Speech (TTS)
    │
    ▼
-Twilio
+Twilio Voice
    │
    ▼
 Customer
@@ -35,52 +35,46 @@ Customer
 ## Features
 
 - AI-powered outbound voice calling
-- Speech-to-Text (Sarvam)
-- AI conversation (Gemini)
-- Text-to-Speech (Sarvam)
+- Sarvam Speech-to-Text (STT)
+- Google Gemini AI conversation
+- Sarvam Text-to-Speech (TTS)
 - Twilio Voice integration
 - REST APIs for independent testing
-- Live voice streaming pipeline
+- Real-time voice streaming pipeline
 
-## Project Structure
+## Tech Stack
 
-```
-app/
-├── config.py
-├── prompts.py
-├── routers/
-│   ├── health.py
-│   ├── chat.py
-│   ├── speech_to_text.py
-│   ├── text_to_speech.py
-│   ├── voice_chat.py
-│   ├── make_call.py
-│   ├── twilio_webhook.py
-│   └── voice_pipeline_stream.py
-├── services/
-│   ├── gemini_service.py
-│   ├── sarvam_service.py
-│   ├── pipeline_service.py
-│   └── twilio_service.py
-└── utils/
-    ├── audio_conversion.py
-    └── exception_handlers.py
+- **Backend:** FastAPI
+- **Speech-to-Text:** Sarvam AI
+- **LLM:** Google Gemini
+- **Text-to-Speech:** Sarvam AI
+- **Telephony:** Twilio Voice API
+- **HTTP Client:** HTTPX
+- **Deployment:** Render
 
-main.py
-requirements.txt
-.env.example
-```
+## Environment Variables
 
-## Setup
+- `GEMINI_API_KEY`
+- `SARVAM_API_KEY`
+- `SARVAM_TTS_LANGUAGE`
+- `SARVAM_TTS_SPEAKER`
+- `TWILIO_ACCOUNT_SID`
+- `TWILIO_AUTH_TOKEN`
+- `TWILIO_PHONE_NUMBER`
+- `PUBLIC_BASE_URL`
 
-```bash
-python3.12 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-```
+## API Endpoints
 
-Configure the required API keys in `.env`.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health Check |
+| POST | `/chat` | Gemini AI Chat |
+| POST | `/speech-to-text` | Sarvam STT |
+| POST | `/text-to-speech` | Sarvam TTS |
+| POST | `/voice-chat` | STT → Gemini → TTS |
+| POST | `/make-call` | Outbound AI Call |
+| POST | `/twilio/voice-webhook` | Twilio Webhook |
+| WS | `/voice-pipeline-stream` | Live Voice Pipeline |
 
 ## Run
 
@@ -88,46 +82,14 @@ Configure the required API keys in `.env`.
 uvicorn main:app --reload
 ```
 
-## Environment Variables
+Swagger UI:
 
-- GEMINI_API_KEY
-- SARVAM_API_KEY
-- TWILIO_ACCOUNT_SID
-- TWILIO_AUTH_TOKEN
-- TWILIO_PHONE_NUMBER
-- PUBLIC_BASE_URL
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Health Check |
-| POST | `/chat` | Gemini Chat |
-| POST | `/speech-to-text` | Speech → Text |
-| POST | `/text-to-speech` | Text → Speech |
-| POST | `/voice-chat` | STT → Gemini → TTS |
-| POST | `/make-call` | Outbound AI Call |
-| POST | `/twilio/voice-webhook` | Twilio Webhook |
-| WS | `/voice-pipeline-stream` | Live Voice Stream |
-
-Swagger Docs:
-
-```
+```text
 http://localhost:8000/docs
 ```
-
-## Tech Stack
-
-- FastAPI
-- Twilio Voice API
-- Sarvam Speech-to-Text
-- Sarvam Text-to-Speech
-- Google Gemini
-- HTTPX
-- Render
 
 ## Notes
 
 - No database is used.
 - Customer context is passed through Twilio stream parameters.
-- Live conversation uses streaming audio with STT → Gemini → TTS pipeline.
+- End-to-end pipeline: **Twilio → Sarvam STT → Gemini → Sarvam TTS → Twilio**.
