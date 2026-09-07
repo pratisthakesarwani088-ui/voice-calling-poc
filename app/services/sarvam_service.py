@@ -12,10 +12,12 @@ SARVAM_STT_URL = "https://api.sarvam.ai/speech-to-text"
 SARVAM_TTS_URL = "https://api.sarvam.ai/text-to-speech"
 
 # Maps a short format name to Sarvam's output_audio_codec value.
-# "mp3" (default) preserves existing /text-to-speech behavior.
+# "mp3" (default) requests WAV — Sarvam's REST endpoint returns fully-formed
+# WAV files regardless, so we ask for it explicitly and label responses
+# correctly (audio/wav) instead of mislabeling them as MP3.
 # "ulaw_8000" returns 8kHz mu-law audio, ready for Twilio Media Streams.
 _OUTPUT_CODECS = {
-    "mp3": "mp3",
+    "mp3": "wav",
     "ulaw_8000": "mulaw",
 }
 
@@ -56,7 +58,8 @@ async def transcribe_audio(file_bytes: bytes, filename: str, content_type: str) 
 async def synthesize_speech(text: str, output_format: str = "mp3") -> bytes:
     """Send text to Sarvam TTS (Bulbul v3) and return the generated audio bytes.
 
-    output_format: "mp3" (default, used by /text-to-speech and /voice-chat)
+    output_format: "mp3" (default, used by /text-to-speech and /voice-chat —
+    despite the name, this returns WAV bytes; see _OUTPUT_CODECS above)
     or "ulaw_8000" (raw 8kHz mu-law, used by the Twilio media stream).
     """
     if not settings.SARVAM_API_KEY:
