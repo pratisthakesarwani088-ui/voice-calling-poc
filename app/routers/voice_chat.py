@@ -1,4 +1,4 @@
-"""Voice-chat endpoint: full Sarvam STT -> Gemini -> ElevenLabs TTS pipeline."""
+"""Voice-chat endpoint: full Sarvam STT -> Gemini -> Sarvam TTS pipeline."""
 import logging
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
@@ -28,7 +28,7 @@ async def voice_chat(file: UploadFile = File(...)) -> Response:
 
     try:
         reply_audio, _reply_text = await run_voice_pipeline(audio_bytes, file.filename, file.content_type)
-        return Response(content=reply_audio, media_type="audio/mpeg")
+        return Response(content=reply_audio, media_type="audio/wav")
     except PipelineError as exc:
         logger.error("Voice-chat pipeline failed: %s", exc)
         raise HTTPException(status_code=502, detail=str(exc)) from exc
