@@ -20,7 +20,7 @@ class TextToSpeechRequest(BaseModel):
 async def text_to_speech(request: TextToSpeechRequest) -> Response:
     try:
         audio_bytes = await synthesize_speech(request.text)
-        return Response(content=audio_bytes, media_type="audio/mpeg")
+        return Response(content=audio_bytes, media_type="audio/wav")
     except SarvamServiceError as exc:
         logger.error("Text-to-speech request failed: %s", exc)
         raise HTTPException(status_code=502, detail="Failed to synthesize speech via Sarvam") from exc
